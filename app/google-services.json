@@ -1,0 +1,131 @@
+{
+  "project_info": {
+    "project_number": "416346487355",
+    "firebase_url": "https://one-shop-29da6.firebaseio.com",
+    "project_id": "one-shop-29da6",
+    "storage_bucket": "one-shop-29da6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416346487355:android:1c1c019f4eb28978cefa1e",
+        "android_client_info": {
+          "package_name": "dev.spinner_tech.admin_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416346487355-hiv4ab0pdmpetr34rddsmvl9npg3dnsp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.spinner_tech.admin_chat",
+            "certificate_hash": "e7134e9e771c4552820851631487affe4d0ba29b"
+          }
+        },
+        {
+          "client_id": "416346487355-5392j2rtkh4754a24u7vsunl5ah2ttnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjrNO6BKPieGrN5CAWN4YrAn3fI26cluM"
+        },
+        {
+          "current_key": "AIzaSyDWxeGM96ov9YiVwhz5PrTX0iEZ-8KqHHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416346487355-5392j2rtkh4754a24u7vsunl5ah2ttnt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416346487355:android:8ba532d9f90c1179cefa1e",
+        "android_client_info": {
+          "package_name": "dev.spinnertech.one_shop_vendor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416346487355-201l7b979cjvng1rpdtlb0vvrqs72kde.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.spinnertech.one_shop_vendor",
+            "certificate_hash": "e7134e9e771c4552820851631487affe4d0ba29b"
+          }
+        },
+        {
+          "client_id": "416346487355-5392j2rtkh4754a24u7vsunl5ah2ttnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjrNO6BKPieGrN5CAWN4YrAn3fI26cluM"
+        },
+        {
+          "current_key": "AIzaSyDWxeGM96ov9YiVwhz5PrTX0iEZ-8KqHHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416346487355-5392j2rtkh4754a24u7vsunl5ah2ttnt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416346487355:android:5a301750a8fcfbe6cefa1e",
+        "android_client_info": {
+          "package_name": "dev.spinnertech.oneshop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416346487355-meo2jnqb745umdmrtk6rbrjgo55qghrl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.spinnertech.oneshop",
+            "certificate_hash": "e7134e9e771c4552820851631487affe4d0ba29b"
+          }
+        },
+        {
+          "client_id": "416346487355-5392j2rtkh4754a24u7vsunl5ah2ttnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjrNO6BKPieGrN5CAWN4YrAn3fI26cluM"
+        },
+        {
+          "current_key": "AIzaSyDWxeGM96ov9YiVwhz5PrTX0iEZ-8KqHHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416346487355-5392j2rtkh4754a24u7vsunl5ah2ttnt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
