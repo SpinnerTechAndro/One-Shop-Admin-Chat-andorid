@@ -72,11 +72,12 @@ public class Fragment_Marchant extends Fragment {
         }
     }
 
-    View v ;
+    View v;
     RecyclerView list;
     DatabaseReference userRef, fref;
     FirebaseRecyclerAdapter<ShopListModel, MarchantChatListingViewholdeers> firebaseRecyclerAdapter;
     FirebaseRecyclerOptions<ShopListModel> options;
+    LinearLayoutManager llm ;
 
     Context context;
 
@@ -87,10 +88,13 @@ public class Fragment_Marchant extends Fragment {
         context = v.getContext();
 
         list = v.findViewById(R.id.customer_chat);
-        list.setLayoutManager(new LinearLayoutManager(context));
+        llm = new LinearLayoutManager(context) ;
+        llm.setReverseLayout(true);
+        llm.setStackFromEnd(true);
+        list.setLayoutManager(llm);
 
         loadList();
-        return  v ;
+        return v;
 
     }
 
@@ -125,22 +129,21 @@ public class Fragment_Marchant extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull final MarchantChatListingViewholdeers viewholder, final int i, @NonNull final ShopListModel userModel) {
 
-                viewholder.setDetails(getContext() , userModel.getMerchantName() , userModel.getLastMessage() , userModel.getShopLogo());
+                viewholder.setDetails(getContext(), userModel.getMerchantName(), userModel.getLastMessage(), userModel.getShopLogo());
 
                 viewholder.setOnClickListener(new MarchantChatListingViewholdeers.ClickListener() {
                     @Override
                     public void onItemClick(View view, final int position) {
 
 
-                            String frindShipId = getItem(position).getShopIdOrChatBoxId();
-                            Intent o = new Intent(context, chatPage.class);
-                            o.putExtra("type", "SHOP");
-                            o.putExtra("id",frindShipId );
-                            o.putExtra("name" , userModel.getShopName()) ;
-                            o.putExtra("image" , userModel.getShopLogo());
-                            startActivity(o);
-
-
+                        String frindShipId = getItem(position).getShopIdOrChatBoxId();
+                        Intent o = new Intent(context, chatPage.class);
+                        o.putExtra("type", "SHOP_TO_ADMIN_CHAT");
+                        o.putExtra("id", frindShipId);
+                        o.putExtra("name", userModel.getShopName());
+                        o.putExtra("mar_name", userModel.getMerchantName());
+                        o.putExtra("image", userModel.getShopLogo());
+                        startActivity(o);
 
 
                     }

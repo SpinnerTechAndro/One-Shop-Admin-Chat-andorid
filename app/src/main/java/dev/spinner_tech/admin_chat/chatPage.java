@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +38,7 @@ import java.util.List;
 
 import dev.spinner_tech.admin_chat.Models.CustomerListModel;
 import dev.spinner_tech.admin_chat.Models.LoginResponse;
+import dev.spinner_tech.admin_chat.Models.ShopListModel;
 import dev.spinner_tech.admin_chat.services.ServiceGenerator;
 import id.zelory.compressor.Compressor;
 import okhttp3.MediaType;
@@ -48,21 +52,52 @@ public class chatPage extends AppCompatActivity {
     FirebaseDatabase firebaseDatabase;
     List<chatMsgModel> loadedChat;
     RecyclerView recyclerView;
-    DatabaseReference mref,chatListRef;
+    DatabaseReference mref, chatListRef;
     ImageView sendBtn;
     EditText chatINput;
     String uid;
     LinearLayoutManager llm;
     Uri mFilePathUri;
-
+    public  static  String IMAGE_URL = "http://oneshop.spinnertechbd.com/one_shop_admin/all_images/";
     //CHATBOX ID
-    String chatboxIdOrCustomerId = "",customerName ="";
+    String mar_name = "";
+    String id, name, image, ref;
+    Boolean isUser = false;
+    TextView titleView ;
+    ImageView proPic ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+        titleView = findViewById(R.id.topbar_title) ;
+        proPic = findViewById(R.id.image);
+        // get the data
+        Intent p = getIntent();
+        ref = p.getStringExtra("type");
+        name = p.getStringExtra("name");
+        image = p.getStringExtra("image");
+        id = p.getStringExtra("id");
+        isUser = p.getBooleanExtra("is_user", false);
+        mar_name = p.getStringExtra("mar_name");
 
+        // set up the views
+        titleView.setText(name);
+        Glide.with(getApplicationContext())
+                .load(IMAGE_URL+image)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(proPic);
+
+        if (isUser) {
+            chatListRef = FirebaseDatabase.getInstance().getReference("CUSTOMER_TO_ADMIN_CHATLIST");
+            mref = FirebaseDatabase.getInstance().getReference("CUSTOMER_TO_ADMIN_CHAT").child(id);
+
+        } else {
+
+            chatListRef = FirebaseDatabase.getInstance().getReference("SHOP_TO_ADMIN_CHATLIST");
+            mref = FirebaseDatabase.getInstance().getReference("SHOP_TO_ADMIN_CHAT").child(id);
+
+        }
 
         chatINput = findViewById(R.id.message_input);
         sendBtn = findViewById(R.id.message_send_btn);
@@ -75,8 +110,6 @@ public class chatPage extends AppCompatActivity {
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(llm);
-        chatListRef = FirebaseDatabase.getInstance().getReference("CUSTOMER_TO_ADMIN_CHATLIST");
-        mref = FirebaseDatabase.getInstance().getReference("CUSTOMER_TO_ADMIN_CHAT").child(chatboxIdOrCustomerId);
 
         downloadMsg();
         sendBtn.setOnClickListener(v -> {
@@ -128,13 +161,13 @@ public class chatPage extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 loadedChat.clear();
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                   try{
-                       chatMsgModel chat = ds.getValue(chatMsgModel.class);
+                    try {
+                        chatMsgModel chat = ds.getValue(chatMsgModel.class);
 
-                       loadedChat.add(chat);
-                   }catch (Exception e){
-                       e.printStackTrace();
-                   }
+                        loadedChat.add(chat);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 chatAdapter adapter = new chatAdapter(getApplicationContext(), loadedChat);
                 adapter.notifyDataSetChanged();
@@ -167,19 +200,32 @@ public class chatPage extends AppCompatActivity {
             public void onComplete(@NonNull Task<Void> task) {
 
                 chatINput.setText("");
-                // writeChatHistory(uid  , friendUserID , frindShipId);
-                // chatINput.getText().clear();
-                // TODO IF ELSE ON TYPE VAR
 
-//                CustomerListModel chatList = new CustomerListModel(
-//                        "You"+msg
-//                        ,customerName,
-//                        chatboxIdOrCustomerId,
-//                        ,
-//                        ,
-//                        Calendar.getInstance().getTimeInMillis());
+                if (isUser) {
+                    CustomerListModel chatList = new CustomerListModel(
+                            "You : " + msg
+                            , name,
+                            id,
+                            image,
+                            Calendar.getInstance().getTimeInMillis()
+                    );
+                    chatListRef.child(id).setValue(chatList);
+                } else {
+                    //    String lastMessage ,merchantName , shopIdOrChatBoxId , shopLogo ,shopName ;
+                    //     long lastMessageTime ;
+                    ShopListModel chatList = new ShopListModel(
+                            "You : " + msg
+                            , mar_name,
+                            id,
+                            image,
+                            name,
+                            Calendar.getInstance().getTimeInMillis()
+                    );
 
-            //    chatListRef.child(chatboxIdOrCustomerId).setValue(chatList);
+                    chatListRef.child(id).setValue(chatList);
+
+                }
+
 
             }
         });
@@ -187,9 +233,7 @@ public class chatPage extends AppCompatActivity {
 
     }
 
-
     private void BringImagePicker() {
-
 
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
@@ -252,28 +296,42 @@ public class chatPage extends AppCompatActivity {
             @Override
             public void onResponse(Call<LoginResponse.megResponse> call, Response<LoginResponse.megResponse> response) {
                 if (response.code() == 200) {
-                    String msg_ID = mref.push().getKey();
 
                     //send the msg
                     if (!response.body().getError()) {
-
+                        String msg_ID = mref.push().getKey();
                         chatMsgModel msgModel = new chatMsgModel("", msg_ID, uid, "image", response.body().getMsg(), System.currentTimeMillis());
                         Log.d("TAG", "onActivityResult: File  uploaded   ");
                         mref.child(msg_ID).setValue(msgModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
 
-                                // update the last msg
 
+                                if (isUser) {
+                                    CustomerListModel chatList = new CustomerListModel(
+                                            "You : Send a photo",
+                                            name,
+                                            id,
+                                            image,
+                                            Calendar.getInstance().getTimeInMillis()
+                                    );
+                                    chatListRef.child(id).setValue(chatList);
+                                } else {
+                                    //    String lastMessage ,merchantName , shopIdOrChatBoxId , shopLogo ,shopName ;
+                                    //     long lastMessageTime ;
+                                    ShopListModel chatList = new ShopListModel(
+                                            "You : Send a photo",
+                                            mar_name,
+                                            id,
+                                            image,
+                                            name,
+                                            Calendar.getInstance().getTimeInMillis()
+                                    );
 
-//                                ChatListCustomerToAdmin chatList = new ChatListCustomerToAdmin(
-//                                        customerName,
-//                                        SharedPrefManager.getInstance(chatPage.this).getUser().getCustomerImage(),
-//                                        chatboxIdOrCustomerId,
-//                                        "You: Send a photo",
-//                                        Calendar.getInstance().getTimeInMillis());
+                                    chatListRef.child(id).setValue(chatList);
 
-                                chatListRef.child(chatboxIdOrCustomerId).setValue(chatList);
+                                }
+
 
                             }
                         });
@@ -289,7 +347,7 @@ public class chatPage extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginResponse.megResponse> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Error: " + t.getMessage() , Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -78,6 +78,7 @@ public class Fragment_Chat extends Fragment {
     FirebaseRecyclerOptions<CustomerListModel> options;
 
     Context context;
+    LinearLayoutManager llm ;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -85,9 +86,11 @@ public class Fragment_Chat extends Fragment {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment__chat, container, false);
         context = v.getContext();
-
+        llm = new LinearLayoutManager(context) ;
+        llm.setReverseLayout(true);
+        llm.setStackFromEnd(true);
         list = v.findViewById(R.id.customer_chat);
-        list.setLayoutManager(new LinearLayoutManager(context));
+        list.setLayoutManager(llm);
 
         loadList();
 
@@ -136,10 +139,12 @@ public class Fragment_Chat extends Fragment {
 
                         String frindShipId = getItem(position).getCustomerIdOrChatBoxId();
                         Intent o = new Intent(context, chatPage.class);
-                        o.putExtra("type", "USER");
+                        o.putExtra("type", "CUSTOMER_TO_ADMIN_CHAT");
                         o.putExtra("id", frindShipId);
                         o.putExtra("name", userModel.getCustomerName());
                         o.putExtra("image", userModel.getCustomerImage());
+                        o.putExtra("mar_name","null" );
+                        o.putExtra("is_user", true);
                         startActivity(o);
 
 

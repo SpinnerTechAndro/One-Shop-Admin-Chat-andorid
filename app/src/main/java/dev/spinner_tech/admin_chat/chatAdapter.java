@@ -36,7 +36,7 @@ public class chatAdapter extends RecyclerView.Adapter<chatAdapter.myHolder> {
     {
         this.contextt = context ;
         this.chatList =  chatList ;
-        this.uid = "admin";
+        this.uid = "ADMIN";
     }
 
     @NonNull
