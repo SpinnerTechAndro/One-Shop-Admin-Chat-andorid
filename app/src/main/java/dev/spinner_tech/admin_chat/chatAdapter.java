@@ -20,7 +20,7 @@ import java.util.List;
 
 
 public class chatAdapter extends RecyclerView.Adapter<chatAdapter.myHolder> {
-    public  static  String IMAGE_URL = "http://oneshop.spinnertechbd.com/one_shop_admin/all_images/";
+    public  static  String IMAGE_URL = "https://oneshopbd.store/one_shop_admin/all_images/";
     List <chatMsgModel> chatList ;
     Date date = new Date();
     SimpleDateFormat formatter = new SimpleDateFormat("hh:mm aa");
@@ -71,11 +71,6 @@ public class chatAdapter extends RecyclerView.Adapter<chatAdapter.myHolder> {
                     .from(parent.getContext())
                     .inflate(R.layout.row_for_image_right ,  parent, false);
         }
-
-
-
-
-
 
         return  new myHolder(view);
     }

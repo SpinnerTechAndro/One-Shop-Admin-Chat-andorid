@@ -1,11 +1,15 @@
 package dev.spinner_tech.admin_chat;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -28,6 +32,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -49,6 +58,7 @@ import retrofit2.Response;
 
 
 public class chatPage extends AppCompatActivity {
+    private static final int PICK_IMAGE = 100;
     FirebaseDatabase firebaseDatabase;
     List<chatMsgModel> loadedChat;
     RecyclerView recyclerView;
@@ -58,20 +68,21 @@ public class chatPage extends AppCompatActivity {
     String uid;
     LinearLayoutManager llm;
     Uri mFilePathUri;
-    public  static  String IMAGE_URL = "http://oneshop.spinnertechbd.com/one_shop_admin/all_images/";
+    public static String IMAGE_URL = "http://oneshop.spinnertechbd.com/one_shop_admin/all_images/";
     //CHATBOX ID
     String mar_name = "";
     String id, name, image, ref;
     Boolean isUser = false;
-    TextView titleView ;
-    ImageView proPic ;
+    TextView titleView;
+    ImageView proPic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
-        titleView = findViewById(R.id.topbar_title) ;
+        titleView = findViewById(R.id.topbar_title);
         proPic = findViewById(R.id.image);
+        RequestPermission();
         // get the data
         Intent p = getIntent();
         ref = p.getStringExtra("type");
@@ -84,7 +95,7 @@ public class chatPage extends AppCompatActivity {
         // set up the views
         titleView.setText(name);
         Glide.with(getApplicationContext())
-                .load(IMAGE_URL+image)
+                .load(IMAGE_URL + image)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(proPic);
 
@@ -202,27 +213,28 @@ public class chatPage extends AppCompatActivity {
                 chatINput.setText("");
 
                 if (isUser) {
-                    CustomerListModel chatList = new CustomerListModel(
-                            "You : " + msg
-                            , name,
-                            id,
-                            image,
-                            Calendar.getInstance().getTimeInMillis()
-                    );
-                    chatListRef.child(id).setValue(chatList);
+//                    CustomerListModel chatList = new CustomerListModel(
+//                            "You : " + msg
+//                            , name,
+//                            id,
+//                            image,
+//                            Calendar.getInstance().getTimeInMillis()
+//                    );
+
+                    //    chatListRef.child(id).setValue(chatList);
                 } else {
                     //    String lastMessage ,merchantName , shopIdOrChatBoxId , shopLogo ,shopName ;
                     //     long lastMessageTime ;
-                    ShopListModel chatList = new ShopListModel(
-                            "You : " + msg
-                            , mar_name,
-                            id,
-                            image,
-                            name,
-                            Calendar.getInstance().getTimeInMillis()
-                    );
-
-                    chatListRef.child(id).setValue(chatList);
+//                    ShopListModel chatList = new ShopListModel(
+//                            "You : " + msg
+//                            , mar_name,
+//                            id,
+//                            image,
+//                            name,
+//                            Calendar.getInstance().getTimeInMillis()
+//                    );
+//
+//                    chatListRef.child(id).setValue(chatList);
 
                 }
 
@@ -235,12 +247,9 @@ public class chatPage extends AppCompatActivity {
 
     private void BringImagePicker() {
 
-        CropImage.activity()
-                .setGuidelines(CropImageView.Guidelines.ON)
-                .setAspectRatio(1, 1)
-                .setCropShape(CropImageView.CropShape.RECTANGLE) //shaping the image
-                .start(chatPage.this);
 
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, PICK_IMAGE);
 
     }
 
@@ -251,27 +260,24 @@ public class chatPage extends AppCompatActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
 
-                mFilePathUri = result.getUri();
+        if (requestCode == PICK_IMAGE) {
 
-                Log.d("TAG", "onActivityResult: Imgae Picked ");
-                //sending data once  user select the image
-                sendTheFile(mFilePathUri);
+            //   mFilePathUri = data.getData();
+            // Toast.makeText(getApplicationContext() , "TEst" + mFilePathUri.toString(), Toast.LENGTH_LONG) .show();
+            Uri selectedMediaUri = data.getData();
 
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+            mFilePathUri = selectedMediaUri;
+            sendTheFile(selectedMediaUri);
 
-                Exception error = result.getError();
-                Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
-            }
+
         }
+
 
     }
 
     private void sendTheFile(Uri mFilePathUri) {
-        File file = new File(mFilePathUri.getPath());
+        File file = new File(getPath(chatPage.this, mFilePathUri));
 
         File compressed;
 
@@ -301,36 +307,36 @@ public class chatPage extends AppCompatActivity {
                     if (!response.body().getError()) {
                         String msg_ID = mref.push().getKey();
                         chatMsgModel msgModel = new chatMsgModel("", msg_ID, uid, "image", response.body().getMsg(), System.currentTimeMillis());
-                        Log.d("TAG", "onActivityResult: File  uploaded   ");
+                        Log.d("TAG", "onActivityResult: File  uploaded   " + response.body().getMsg());
                         mref.child(msg_ID).setValue(msgModel).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
 
 
-                                if (isUser) {
-                                    CustomerListModel chatList = new CustomerListModel(
-                                            "You : Send a photo",
-                                            name,
-                                            id,
-                                            image,
-                                            Calendar.getInstance().getTimeInMillis()
-                                    );
-                                    chatListRef.child(id).setValue(chatList);
-                                } else {
-                                    //    String lastMessage ,merchantName , shopIdOrChatBoxId , shopLogo ,shopName ;
-                                    //     long lastMessageTime ;
-                                    ShopListModel chatList = new ShopListModel(
-                                            "You : Send a photo",
-                                            mar_name,
-                                            id,
-                                            image,
-                                            name,
-                                            Calendar.getInstance().getTimeInMillis()
-                                    );
-
-                                    chatListRef.child(id).setValue(chatList);
-
-                                }
+//                                if (isUser) {
+//                                    CustomerListModel chatList = new CustomerListModel(
+//                                            "You : Send a photo",
+//                                            name,
+//                                            id,
+//                                            image,
+//                                            Calendar.getInstance().getTimeInMillis()
+//                                    );
+//                                    chatListRef.child(id).setValue(chatList);
+//                                } else {
+//                                    //    String lastMessage ,merchantName , shopIdOrChatBoxId , shopLogo ,shopName ;
+//                                    //     long lastMessageTime ;
+//                                    ShopListModel chatList = new ShopListModel(
+//                                            "You : Send a photo",
+//                                            mar_name,
+//                                            id,
+//                                            image,
+//                                            name,
+//                                            Calendar.getInstance().getTimeInMillis()
+//                                    );
+//
+//                                    chatListRef.child(id).setValue(chatList);
+//
+//                                }
 
 
                             }
@@ -352,5 +358,37 @@ public class chatPage extends AppCompatActivity {
         });
     }
 
+    private void RequestPermission() {
 
+        Dexter.withContext(chatPage.this)
+                .withPermissions(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+
+
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+
+                        permissionToken.continuePermissionRequest();
+                    }
+                }).onSameThread().check();
+    }
+
+    public static String getPath(Context ctx, Uri uri) {
+        String[] proj = {MediaStore.Images.Media.DATA};
+        CursorLoader loader = new CursorLoader(ctx, uri, proj, null, null, null);
+        Cursor cursor = loader.loadInBackground();
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        String result = cursor.getString(column_index);
+        cursor.close();
+        return result;
+    }
 }

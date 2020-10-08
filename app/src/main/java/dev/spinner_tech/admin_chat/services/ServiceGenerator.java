@@ -8,7 +8,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public  class ServiceGenerator {
-    private static final String BASE_URL ="http://oneshop.spinnertechbd.com/one_shop_admin/app/api/" ;
+    private static final String BASE_URL = "https://oneshopbd.store/one_shop_admin/app/api/" ;
     private static ServiceGenerator mInstance;
     private Retrofit retrofit;
     private Context context ;
